@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Redmine Gitolite by jbox-web</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Redmine Gitolite</h1>
+        <h2></h2>
+        <a href="https://github.com/jbox-web/redmine-gitolite" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <p>= redmine-gitolite</p>
+
+<p>CURRENT HEAD VERSION WORKS WITH TRUNK REDMINE (certified with 2.2.3)</p>
+
+<p>THIS PLUGIN IS COMPATIBLE WITH REDMINE 2.X ONLY !</p>
+
+<p>This is {Redmine Gitolite Hook}[<a href="https://github.com/kahseng/redmine_gitolite_hook">https://github.com/kahseng/redmine_gitolite_hook</a>] combined with {redmine-gitolite}[<a href="https://github.com/jhogendorn/redmine-gitolite">https://github.com/jhogendorn/redmine-gitolite</a>]</p>
+
+<p>A Redmine plugin which manages your gitolite configuration based on your projects and user memberships in Redmine.</p>
+
+<p>Provides Gitolite hook, for automaticaly pulling changes to local clone of repository. You don't need to any access to your, this plugin will create local clone and keep it up to date.</p>
+
+<p>Includes Public Key management views (extracted from <a href="http://plan.io">http://plan.io</a>).</p>
+
+<p>== Requirements:</p>
+
+<p>=== Gems:</p>
+
+<ul>
+<li>net-ssh</li>
+<li>lockfile</li>
+<li>{gitolite}<a href="works%20with%201.1.0">https://github.com/wingrunr21/gitolite/</a>
+</li>
+</ul><p>=== Other:</p>
+
+<ul>
+<li>Gitolite server (works with v2.3.1-0-g912a8bd-dt)</li>
+<li>accessible Git executable (works with 1.7.2.5)</li>
+<li>curl</li>
+</ul><p>== Setup:
+1. Install Redmine and put this plugin in redmine/plugins directory and migrate database (plugins)</p>
+
+<p>$ cd redmine/plugins
+  $ git clone git://github.com/pitit-atchoum/redmine-gitolite.git redmine_gitolite
+  $ cd ..
+  $ RAILS_ENV=production rake db:migrate_plugins</p>
+
+<ol>
+<li>
+<p>Create SSH Keys and SSH config file for user running Redmine
+$ sudo su - redmine
+$ ssh-keygen -N '' -f ~/.ssh/redmine
+$ vim ~/.ssh/config</p>
+
+<p>Host localhost
+HostName localhost
+User git
+IdentityFile ~/.ssh/redmine
+IdentitiesOnly yes</p>
+</li>
+<li><p>User running Redmine must have RW+ access to gitolite-admin (assuming that you have gitolite installed).</p></li>
+<li>
+<p>Make sure that Redmine user has Gitolite server in his known_hosts list (This is also a good check to see if Gitolite works)</p>
+
+<p>$ sudo su - redmine
+$ ssh git@localhost</p>
+
+<ul>
+<li>[accept key]</li>
+</ul>
+</li>
+</ol><p>You should get something like that :</p>
+
+<p>hello redmine_redmine, this is gitolite v2.3.1-0-g912a8bd-dt running on git 1.7.2.5
+  the gitolite config gives you the following access:
+       R   W  gitolite-admin
+      @R_ @W_ testing</p>
+
+<ol>
+<li>
+<p>Configure email and name of git user for your redmine account</p>
+
+<p>$ sudo su - redmine
+$ git config --global user.email "<a href="mailto:redmine@gitolite.org">redmine@gitolite.org</a>"
+$ git config --global user.name "Redmine Gitolite"</p>
+</li>
+<li>
+<p>Add post-receive hook to common gitolite hooks (examples in contrib dir) and configure it (host, api key, etc, see sources)
+$ sudo su - gitolite #login on gitolite user
+$ cat &gt; .gitolite/hooks/common/post-receive</p>
+
+<ul>
+<li>[paste hook]
+$ vim .gitolite/hooks/common/post-receive</li>
+<li>[enable WS for repository management in administration-&gt;settings-&gt;repositories]</li>
+<li><a href="DEFAULT_REDMINE_KEY">copy generated API key</a></li>
+<li>
+<a href="DEFAULT_REDMINE_SERVER">set Redmine server URL</a>
+$ chmod +x .gitolite/hooks/common/post-receive
+$ vim .gitolite.rc</li>
+<li>[add ".*" to the GL_GIT_CONFIG_KEYS setting</li>
+<li>[ set $REPO_UMASK = 0022; ]
+$ gl-setup</li>
+</ul>
+</li>
+<li>
+<p>Configure plugin in Redmine settings</p>
+
+<ul>
+<li>[Adminitration -&gt; Plugins -&gt; Redmine Gitolite]</li>
+<li>[Gitolite URL should be set to your gitolite-admin git repository]</li>
+<li>[Base path should point to the Gitolite directory which will hold local copies (must exist, example : /home/gitolite/repositories)</li>
+<li>[Set developer and ro urls as in given examples (just slightly modify them)]
+[%{name} will be replaced with your repository identifier]</li>
+</ul>
+</li>
+</ol><p>== Pro Tips:</p>
+
+<ul>
+<li>You should manage your keys only from Redmine to avoid conflicts.</li>
+<li>Need new bare git repo? Create it via Redmine, disable other features.</li>
+<li>This is most convenient way to manage keys by your user.</li>
+</ul><p>== Found bug?</p>
+
+<p>Open new issue and complain. You can also fix it and sent pull request.
+This plugin is in active usage in current, edge Redmine. Any suggestions are welcome.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/jbox-web/redmine-gitolite/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/jbox-web/redmine-gitolite/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/jbox-web/redmine-gitolite"></a> is maintained by <a href="https://github.com/jbox-web">jbox-web</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
