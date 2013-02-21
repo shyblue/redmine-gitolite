@@ -92,31 +92,75 @@ module GitoliteRedmine
     end
 
 
-    def update_repositories(*args)
-      flags = {}
-      args.each {|arg| flags.merge!(arg) if arg.is_a?(Hash)}
+    def update_repositories(project)
 
-      puts "#########################"
-      puts YAML::dump(flags)
-      puts "#########################"
+      projects = project.self_and_descendants
 
-      if flags[:descendants]
-        logger.info "[Gitolite] I think we must update repo path"
+      # Only take projects that have Git repos.
+      git_projects = projects.uniq.select{|p| p.gl_repos.any?}
+      return if git_projects.empty?
 
-        if Project.method_defined?(:self_and_descendants)
-          projects = (args.flatten.select{|p| p.is_a?(Project)}).collect{|p| p.self_and_descendants}.flatten
-        else
-          projects = Project.active_or_archived.find(:all, :include => :repositories)
+      clone_gitolite_admin_repo
+
+      if GitoliteHosting.lock
+        git_projects.each do |project|
+          project.gl_repos.each do |repository|
+            if repository.url != GitoliteHosting.repository_absolute_path(repository)
+
+              logger.info "[Gitolite] I think we must update repo path"
+              logger.info "[Gitolite] Update Project infos : #{project.identifier}"
+
+              project_name = project.identifier
+              repo_name    = repository.identifier
+
+              old_absolute_path  = "#{repository.url}"
+              new_absolute_path  = "#{GitoliteConfig.repository_absolute_base_path}#{GitoliteHosting.repository_name(repository)}.git"
+              old_relative_path  = "#{GitoliteConfig.repository_relative_base_path}#{old_absolute_path.gsub(GitoliteConfig.repository_absolute_base_path, '')}"
+              new_relative_path  = "#{GitoliteConfig.repository_relative_base_path}#{GitoliteHosting.repository_name(repository)}.git"
+              old_repo_hierarchy = "#{old_absolute_path.gsub(GitoliteConfig.repository_absolute_base_path, '').gsub('.git', '')}"
+              new_repo_hierarchy = "#{GitoliteHosting.repository_name(repository)}"
+
+              puts "[Gitolite] Update Repository infos :"
+              puts "[Gitolite] Old Absolute path (for Redmine code browser) : #{old_absolute_path}"
+              puts "[Gitolite] New Absolute path (for Redmine code browser) : #{new_absolute_path}"
+              puts "[Gitolite] Old Relative path (for Gitolite)             : #{old_relative_path}"
+              puts "[Gitolite] New Relative path (for Gitolite)             : #{new_relative_path}"
+              puts "[Gitolite] Old Repo hierarchy (for Gitolite)            : #{old_repo_hierarchy}"
+              puts "[Gitolite] New Repo hierarchy (for Gitolite)            : #{new_repo_hierarchy}"
+              puts ""
+
+              GitoliteHosting.move_physical_repo(old_relative_path, new_relative_path)
+
+              Repository.observers.disable :all do
+                repository.url = "#{new_absolute_path}"
+                repository.save!
+              end
+
+              # update gitolite conf
+              repo_conf = @gitolite_admin.config.repos[old_repo_hierarchy]
+              if !repo_conf
+                logger.error "[Gitolite] Repository hierarchy '#{old_repo_hierarchy}' does not exist in Gitolite conf !"
+                return
+              else
+                @gitolite_admin.config.rm_repo(old_repo_hierarchy)
+                repo_conf = Gitolite::Config::Repo.new(new_repo_hierarchy)
+                repo_conf.set_git_config("hooks.redmine_gitolite.projectid", project_name)
+                repo_conf.set_git_config("hooks.redmine_gitolite.repoid", repo_name)
+                @gitolite_admin.config.add_repo(repo_conf)
+
+                users = project.member_principals.map(&:user).compact.uniq
+                repo_conf.permissions = build_permissions(users, project)
+              end
+
+            end
+          end
         end
 
-        puts "#########################"
-        puts projects
-        puts YAML::dump(projects)
-        puts "#########################"
+        @gitolite_admin.save_and_apply
 
-        # Only take projects that have Git repos.
-        git_projects = projects.uniq.select{|p| p.gl_repos.any?}
-        return if git_projects.empty?
+        FileUtils.rm_rf @tmp_dir
+
+        GitoliteHosting.unlock
 
       end
     end
@@ -155,10 +199,7 @@ module GitoliteRedmine
 
         logger.info "[Gitolite] Handling Repository : #{repo_hierarchy}"
 
-        if repo_conf
-          logger.info "[Gitolite] Gitolite repo already exists, skip..."
-          logger.debug "[Gitolite] Repo Conf : #{repo_conf}"
-        else
+        unless repo_conf
           logger.info "[Gitolite] Gitolite repo does not exist, create..."
           repo_conf = Gitolite::Config::Repo.new(repo_hierarchy)
           repo_conf.set_git_config("hooks.redmine_gitolite.projectid", project_name)

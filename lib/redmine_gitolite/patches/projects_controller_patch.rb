@@ -32,34 +32,21 @@ module RedmineGitolite
 
 
       def create_with_disable_update
-        # Turn of updates during repository update
-        GitoliteObserver.set_update_active(false);
-
         # Do actual update
         create_without_disable_update
 
         # Fix up repository
         git_repo_init
-
-        # Reenable updates to perform a single update
-        GitoliteObserver.set_update_active(true);
       end
 
 
       def update_with_disable_update
-        # Turn of updates during repository update
-        GitoliteObserver.set_update_active(false);
-
         # Do actual update
         update_without_disable_update
 
-        if @project.gl_repos.detect {|repo| repo.url != GitoliteHosting::repository_path(repo) || repo.url != repo.root_url}
-          # Hm... something about parent hierarchy changed.  Update us and our children
-          GitoliteObserver.set_update_active(@project, :descendants)
-        else
-          # Reenable updates to perform a single update
-          GitoliteObserver.set_update_active(true);
-        end
+        gr = GitoliteRedmine::AdminHandler.new
+        gr.update_repositories(@project)
+
       end
 
     end

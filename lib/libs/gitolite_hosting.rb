@@ -22,7 +22,11 @@ module GitoliteHosting
   # Check to see if the given repository exists or not...
   # Need to work a bit, since we have to su to figure it out...
   def self.git_repository_exists?(repository)
-    file_exists?(repository_path(repository))
+    if repository.is_a?(String)
+      file_exists?(repository)
+    else
+      file_exists?(repository_relative_path(repository))
+    end
   end
 
 
@@ -62,8 +66,13 @@ module GitoliteHosting
   end
 
 
-  def self.repository_path(repository)
+  def self.repository_relative_path(repository)
     return File.join(GitoliteConfig.repository_relative_base_path, repository_name(repository)) + ".git"
+  end
+
+
+  def self.repository_absolute_path(repository)
+    return File.join(GitoliteConfig.repository_absolute_base_path, repository_name(repository)) + ".git"
   end
 
 
@@ -73,8 +82,6 @@ module GitoliteHosting
 
 
   def self.get_full_parent_path(repository)
-    is_file_path = false
-
     project = repository.project
 
     return "" if !project.parent
@@ -86,7 +93,8 @@ module GitoliteHosting
       parent_parts.unshift(parent_id)
       p = p.parent
     end
-    return is_file_path ? File.join(parent_parts) : parent_parts.join("/")
+
+    return parent_parts.join("/")
   end
 
 
@@ -374,40 +382,23 @@ module GitoliteHosting
 
 
   # This routine moves a repository in the gitolite repository structure.
-  def self.move_physical_repo(old_name, new_name)
+  def self.move_physical_repo(old_path, new_path)
     begin
-      logger.warn "[Gitolite] Moving gitolite repository from '#{old_name}.git' to '#{new_name}.git'"
+      logger.warn "[Gitolite] Moving gitolite repository from '#{old_path}' to '#{new_path}'"
 
-      if git_repository_exists? new_name
-        logger.error "[Gitolite] Repository already exists at #{new_name}.git! Moving to recycle bin to avoid overwrite."
-        GitoliteRecycle.move_repository_to_recycle new_name
+      if !git_repository_exists? old_path
+        logger.error "[Gitolite] Repository directory '#{old_path}' does not exists !"
+        return
       end
 
-      # physicaly move the repo BEFORE committing/pushing conf changes to gitolite admin repo
-      prefix = new_name[/.*(?=\/)/] # Complete directory path (if exists) without trailing '/'
-      if prefix
-        # Has subdirectory.  Must construct destination directory
-        repo_prefix = File.join(GitoliteConfig.repository_relative_base_path, prefix)
-        GitoliteHosting.shell %[#{git_user_runner} mkdir -p '#{repo_prefix}']
-      end
-
-      old_path = repository_path(old_name)
-      new_path = repository_path(new_name)
       GitoliteHosting.shell %[#{git_user_runner} 'mv "#{old_path}" "#{new_path}"']
 
-      # If any empty directories left behind, try to delete them.  Ignore failure.
-      old_prefix = old_name[/.*?(?=\/)/] # Top-level old directory without trailing '/'
-      if old_prefix
-        repo_subpath = File.join(GitoliteConfig.repository_relative_base_path, old_prefix)
-        result = %x[#{GitoliteHosting.git_user_runner} find '#{repo_subpath}' -depth -type d ! -regex '.*\.git/.*' -empty -delete -print].chomp.split("\n")
-        result.each { |dir| logger.warn "[Gitolite] Removing empty repository subdirectory: #{dir}"}
-      end
     rescue GitoliteHostingException
-      logger.error "[Gitolite] move_physical_repo(#{old_name},#{new_name}) failed"
+      logger.error "[Gitolite] move_physical_repo(#{old_path}, #{new_path}) failed"
     rescue => e
       logger.error e.message
       logger.error e.backtrace[0..4].join("\n")
-      logger.error "[Gitolite] move_physical_repo(#{old_name},#{new_name}) failed"
+      logger.error "[Gitolite] move_physical_repo(#{old_path}, #{new_path}) failed"
     end
 
   end

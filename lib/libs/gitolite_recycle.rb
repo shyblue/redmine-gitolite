@@ -52,7 +52,7 @@ module GitoliteRedmine
 
     def self.move_repository_to_recycle(repository)
       repo_name      = repository.identifier
-      repo_path      = GitoliteHosting.repository_path(repository)
+      repo_path      = GitoliteHosting.repository_relative_path(repository)
       repo_hierarchy = GitoliteHosting.repository_name(repository)
 
       # Only bother if actually exists!
