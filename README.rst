@@ -49,6 +49,45 @@ Setup
 
 3. User running Redmine must have RW+ access to gitolite-admin (assuming that you have Gitolite installed).
 
+Otherwise you can install Gitolite by following this :
+
+.. code:: ruby
+
+    Server requirements:
+
+      * any unix system
+      * sh
+      * git 1.6.6+
+      * perl 5.8.8+
+      * openssh 5.0+
+      * a dedicated userid to host the repos (in this document, we assume it
+        is 'git'), with shell access ONLY by 'su - git' from some other userid
+        on the same server.
+
+    Steps to install:
+
+      * login as 'git' as described above
+
+      * make sure ~/.ssh/authorized_keys is empty or non-existent
+
+      * make sure Redmine SSH public key is available at $HOME/redmine_gitolite_admin_id_rsa.pub
+
+      * add this in ~/.profile
+
+            # set PATH so it includes user private bin if it exists
+            if [ -d "$HOME/bin" ] ; then
+                PATH="$PATH:$HOME/bin"
+            fi
+
+      * run the following commands:
+            
+            source ~/.profile
+            git clone git://github.com/sitaramc/gitolite
+            mkdir -p $HOME/bin
+            gitolite/install -to $HOME/bin
+            gitolite setup -pk redmine_gitolite_admin_id_rsa.pub
+
+
 4. Make sure that Redmine user has Gitolite server in his known_hosts list (This is also a good check to see if Gitolite works)
 
 .. code:: ruby
@@ -74,7 +113,7 @@ Or
         R W  gitolite-admin
         R W  testing
 
-5. Configure email and name of git user for your redmine account
+5. Configure email and name of Gitolite user for your Redmine account
 
 .. code:: ruby
 
@@ -100,14 +139,6 @@ Or
     $ gl-setup
 
 7. Configure plugin in Redmine settings
-
-.. code:: ruby
-
-    * [Adminitration -> Plugins -> Redmine Gitolite]
-    * [Gitolite URL should be set to your gitolite-admin git repository]
-    * [Base path should point to the Gitolite directory which will hold local copies (must exist, example : /home/gitolite/repositories)
-    * [Set developer and ro urls as in given examples (just slightly modify them)]
-      [%{name} will be replaced with your repository identifier]
 
 Found a bug?
 ------------
