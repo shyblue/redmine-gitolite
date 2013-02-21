@@ -1,0 +1,46 @@
+en:
+
+  ## GITOLITE SETTINGS
+  label_gitolite_settings: Gitolite Settings
+  label_gitolite_identity_private_key_file: Gitolite SSH Identity File (Private Key)
+  label_gitolite_identity_public_key_file: Gitolite SSH Identity File (Public Key)
+  label_gitolite_repositories_absolute_base_path: Gitolite Repositories Base Path <br /> (Must exist and be absolute, needed to browse code)
+  label_gitolite_username: Gitolite Username <br /> (Unix username)
+  label_gitolite_server: Gitolite Server <br /> ('localhost' most of the time)
+  label_gitolite_server_domain: Gitolite Server Domain <br /> (Needed for access URL)
+  label_gitolite_lock_wait_time: Synchronization Lock Wait Time <br /> (in seconds)
+  label_gitolite_all_projects_use_git: Automatically Initialize Git Repositories For New Projects
+
+  ## RECYCLE BIN SETTINGS
+  label_gitolite_recycle_bin_settings: Gitolite RecycleBin Settings
+  label_gitolite_recycle_base_path: Gitolite Recycle Bin Base Path <br/ > (Relative to Gitolite user's home)
+  label_gitolite_recycle_expire_time: Expire Time for Repositories in Recycle Bin <br /> (in hours)
+  label_delete_git_repositories: Delete Git Repository When Project Deleted <br /> (will be place in Recycle Bin)
+
+  ## VALIDATION SETTINGS
+  label_gitolite_validation_settings: Gitolite Validation
+  label_sudo_web_to_git_user: Web user is able to sudo to Git user?
+  label_sudo_git_to_web_user: Git user is able to sudo to Web user?
+  label_gitolite_admin_url: Gitolite Admin URL
+  label_gitolite_read_only_url: Gitolite Read Only URL
+  label_gitolite_developer_url: Gitolite Developer URL
+
+  ## NOTICES
+  notice_public_key_updated: Public key was successfully updated
+  notice_public_key_added: Public key was successfully added
+
+  ## ERRORS
+  label_cannot_change_selinux: Cannot Change in Current Configuration
+
+  ## FIELDS
+  field_public_key: Key
+
+  ## VIEWS
+  label_public_keys: Public keys
+  label_public_key_new: New public key
+
+  ## MISC
+  label_enabled: Enabled
+  label_disabled: Disabled
+  label_true: "True"
+  label_false: "False"

@@ -1,0 +1,50 @@
+<%# This is used to display basic git setup instructions, like on github... %>
+<% flash.now[:error] = "Repository does not exist. Create one using the instructions below." %>
+<div class="box">
+
+  <h2>Git Setup:</h2>
+  <pre>
+    <a href="http://git-scm.com/download" target="_blank">Download and Install Git</a>
+    git config --global user.name "<%= User.current.login %>"
+    git config --global user.email <%= User.current.mail %>
+  </pre>
+
+  <h2>Permission Setup:</h2>
+  <pre>
+    <%= link_to "Upload SSH Public Key", {:controller => 'gitolite_public_keys', :action => 'index'} %>
+    Add yourself as a project developer: <%= link_to @project.name + " Settings", {:controller => 'projects', :action => 'settings'} %> -&gt; Members Tab -&gt; New Member
+  </pre>
+
+  <h2>Repository Setup:</h2>
+  <pre>
+    mkdir <%= @repository.identifier %>
+    cd <%= @repository.identifier %>
+    git init
+    git add .
+    git commit -m 'Initializing <%= @project %> repository'
+    git remote add origin <%= @repository.gitolite_git_url %>
+    git push origin master
+  </pre>
+
+  <h2>Existing Git Repo?</h2>
+  <pre>
+    cd existing_git_repo
+    git remote add origin <%= @repository.gitolite_git_url %>
+    git push origin master
+  </pre>
+
+</div>
+
+<% if @repositories.size > 1 %>
+  <% content_for :sidebar do %>
+    <h3><%= l(:label_repository_plural) %></h3>
+    <p>
+      <%= @repositories.sort.collect {|repo|
+          link_to h(repo.name),
+                  {:controller => 'repositories', :action => 'show',
+                   :id => @project, :repository_id => repo.identifier_param, :rev => nil, :path => nil},
+                  :class => 'repository' + (repo == @repository ? ' selected' : '')
+        }.join('<br />').html_safe %>
+    </p>
+  <% end %>
+<% end %>

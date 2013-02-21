@@ -1,0 +1,28 @@
+<% if @project.repository && @project.repository.is_a?(Repository::Git) %>
+  <div class="box">
+    <h3>Git Repositories</h3>
+
+    <p>
+      <% if User.current.allowed_to?(:view_changesets, @project) %>
+        <strong>Read Only URL:</strong><br />
+        <ul>
+          <% @project.repositories.select{|r| r.is_a?(Repository::Git)}.each do |repo| %>
+            <li><%= link_to repo.gitolite_http_url, repo.gitolite_http_url %></li>
+          <% end %>
+        </ul>
+      <% end %>
+    </p>
+
+    <p>
+      <% if User.current.allowed_to?(:commit_access, @project) %>
+        <strong>Developer URL:</strong><br />
+        <ul>
+          <% @project.repositories.select{|r| r.is_a?(Repository::Git)}.each do |repo| %>
+            <li><%= link_to repo.gitolite_git_url %></li>
+          <% end %>
+        </ul>
+      <% end %>
+    </p>
+
+  </div>
+<% end %>

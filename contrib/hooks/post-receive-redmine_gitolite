@@ -1,0 +1,57 @@
+#!/bin/bash
+
+DEFAULT_REDMINE_KEY='your_redmine_api_key'
+DEFAULT_REDMINE_SERVER='http://your.redmine.server.com'
+
+if [ "${GL_REPO}" == "gitolite-admin" ] ; then
+  echo "This is gitolite-admin repo, nothing to do, exiting..."
+  exit
+fi
+
+KEY=$(git config hooks.redmine_gitolite.key 2>/dev/null)
+if [ -z "${KEY}" ] ; then
+  KEY="${DEFAULT_REDMINE_KEY}"
+fi
+
+REDMINE_SERVER=$(git config hooks.redmine_gitolite.server 2>/dev/null)
+if [ -z "${REDMINE_SERVER}" ] ; then
+  REDMINE_SERVER="${DEFAULT_REDMINE_SERVER}"
+fi
+
+REDMINE_PROJECT_ID=$(git config hooks.redmine_gitolite.projectid 2>/dev/null)
+if [ -z "${REDMINE_PROJECT_ID}" ] ; then
+  echo
+  echo "Error project_id not found, exiting post_receive hook..."
+  echo
+  exit
+fi
+
+REDMINE_REPO_ID=$(git config hooks.redmine_gitolite.repoid 2>/dev/null)
+if [ -z "${REDMINE_REPO_ID}" ] ; then
+  echo
+  echo "Error repo_id not found, exiting post_receive hook..."
+  echo
+  exit
+fi
+
+echo
+echo "Notifying Redmine about changes to this repository :"
+echo
+echo "   * Project    : ${REDMINE_SERVER}/projects/${REDMINE_PROJECT_ID}"
+echo "   * Repository : ${REDMINE_SERVER}/projects/${REDMINE_PROJECT_ID}/repository/${REDMINE_REPO_ID}"
+echo
+
+# Read from stdin
+while read OLD_REV NEW_REV REF_NAME ; do
+  echo "Commit infos :"
+  echo
+  echo "   * Commiter        : ${GL_USER}"
+  echo "   * Old revision ID : ${OLD_REV}"
+  echo "   * New revision ID : ${NEW_REV}"
+  echo "   * Git branch      : ${REF_NAME}"
+  echo
+  echo -n "Response :"
+  curl -k -S -s -d "oldrev=${OLD_REV}&newrev=${NEW_REV}&refname=${REF_NAME}&user=${GL_USER}" "${REDMINE_SERVER}/gitolite_hook?project_id=${REDMINE_PROJECT_ID}&repo_id=${REDMINE_REPO_ID}"
+  echo
+  echo
+done

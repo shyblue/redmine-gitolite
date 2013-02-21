@@ -1,0 +1,47 @@
+<p>
+  <label><%= l(:label_sudo_git_to_web_user)%></label>
+  <%= image_tag((GitoliteHosting.sudo_git_to_web_user == true ? 'true.png' : 'exclamation.png'), :style => "vertical-align:bottom;") %>
+  <em><%= (GitoliteHosting.sudo_git_to_web_user == true ? '' : GitoliteHosting.sudo_git_to_web_user) %></em>
+  <br />
+</p>
+
+<br />
+
+<p>
+  <label><%= l(:label_sudo_web_to_git_user)%></label>
+  <%= image_tag((GitoliteHosting.sudo_web_to_git_user == true ? 'true.png' : 'exclamation.png'), :style => "vertical-align:bottom;") %>
+  <em><%= (GitoliteHosting.sudo_web_to_git_user == true ? '' : GitoliteHosting.sudo_web_to_git_user) %></em>
+  <br />
+</p>
+
+<br />
+
+<p>
+  <label><%= l(:label_gitolite_admin_url)%></label>
+  <%= GitoliteConfig.gitolite_admin_url %>
+  <br />
+</p>
+
+<br />
+
+<p>
+  <label><%= l(:label_gitolite_read_only_url)%></label>
+  http://<%= GitoliteConfig.gitolite_server_domain %>/projects/(project_name)/repository/(repository_name)
+  <br />
+</p>
+
+<br />
+
+<p>
+  <label><%= l(:label_gitolite_developer_url)%></label>
+  <%= GitoliteConfig.gitolite_user %>@<%= GitoliteConfig.gitolite_server_domain %>:(repository_path)
+  <br />
+</p>
+
+<br />
+
+<p>
+  <label>PATH Directories</label>
+  <%= raw (ENV['PATH']).gsub(/:/, "<br/>") %>
+  <br/>
+</p>
