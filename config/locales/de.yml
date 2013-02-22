@@ -1,0 +1,46 @@
+de:
+
+  ## GITOLITE SETTINGS
+  label_gitolite_settings: Konfiguration
+  label_gitolite_identity_private_key_file: SSH Schlüsseldatei (Privater Schlüssel) 
+  label_gitolite_identity_public_key_file: SSH Schlüsseldatei (Öffentlicher Schlüssel)
+  label_gitolite_repositories_absolute_base_path: Gitolite Repositories Basisverzeichnis <br /> (Muss existieren und absolut angegeben werden, benötigt um Dateiinhalte anzuzeigen)
+  label_gitolite_username: Gitolite Benutzername <br /> (Unix Benutzer)
+  label_gitolite_server: Gitolite Server <br /> ('localhost' im Normalfall)
+  label_gitolite_server_domain: Gitolite Server Domain <br /> (Benötigt für Zugriffs-URL)
+  label_gitolite_lock_wait_time: Wartezeit Synchronisierungssperre <br /> (in Sekunden)
+  label_gitolite_all_projects_use_git: Git Repositories für neue Projekte automatisch anlegen
+
+  ## RECYCLE BIN SETTINGS
+  label_gitolite_recycle_bin_settings: Papierkorb
+  label_gitolite_recycle_base_path: Basisverzeichnis für Papierkorb<br/ > (Relativ zu Profilverzeichnis des Gitolite Benutzers)
+  label_gitolite_recycle_expire_time: Ablaufzeit für Repositories im Papierkorb <br /> (in Stunden)
+  label_delete_git_repositories: Repositories löschen, wenn das Projekt gelöscht wird <br /> (Verschieben in Papierkorb)
+
+  ## VALIDATION SETTINGS
+  label_gitolite_validation_settings: Überprüfen
+  label_sudo_web_to_git_user: Web Benutzer kann sudo zu Git Benutzer ausführen?
+  label_sudo_git_to_web_user: Git Benutzer kann sudo zu Web Benutzer ausführen?
+  label_gitolite_admin_url: Gitolite Admin URL
+  label_gitolite_read_only_url: Gitolite Read Only URL
+  label_gitolite_developer_url: Gitolite Entwickler URL
+
+  ## NOTICES
+  notice_public_key_updated: Öffentlicher Schlüssel wurde erfolgreich aktualisiert
+  notice_public_key_added: Öffentlicher Schlüssel wurde erfolgreich hinzugefügt
+
+  ## ERRORS
+  label_cannot_change_selinux: Konnte nicht aktualisieren
+
+  ## FIELDS
+  field_public_key: Schlüssel
+
+  ## VIEWS
+  label_public_keys: Öffentliche Schlüssel
+  label_public_key_new: Neuer öffentlicher Schlüssel
+
+  ## MISC
+  label_enabled: Aktiviert
+  label_disabled: Deaktiviert
+  label_true: "True"
+  label_false: "False"
