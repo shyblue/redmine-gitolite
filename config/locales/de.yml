@@ -44,3 +44,18 @@ de:
   label_disabled: Deaktiviert
   label_true: "True"
   label_false: "False"
+
+  ## GIT Instructions and GIT Info
+  git_repository_info: Repository Info
+  git_repository_name: Name
+  git_read_access: Lesezugriff
+  git_ssh_access: SSH Zugriff
+  git_setup: Git Setup
+  download_and_install_git: Git herunterladen und installieren
+  error_git_repository_does_not_exist: Repository existiert nicht. Erstellen Sie es mit den unten stehenden Anweisungen.
+  git_permission_setup: Berechtigungen konfigurieren
+  upload_ssh_public_key: Laden Sie Ihren SSH Public Key hoch
+  add_yourself_as_developer: Legen Sie sich selbst als Projekt Entwickler an
+  repository_setup: Repository Setup
+  initializing_repository: Initialisierung Repository %{project}
+  checkin_existing_git_repo: Ein existierendes Git Repository einchecken

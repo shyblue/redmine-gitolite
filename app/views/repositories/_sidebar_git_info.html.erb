@@ -1,0 +1,16 @@
+    <h3><%= l('git_repository_info') %></h3>
+    <div id="git_info">
+      <%= l('git_repository_name') %>: <%= @repository.git_label %><br />
+      <%= l 'git_read_access' %>:
+      <pre class="autoscroll"><%= @repository.gitolite_http_url %></pre>
+      <%= l 'git_ssh_access' %>:
+      <pre class='autoscroll'><%= @repository.gitolite_git_url %></pre>
+    </div>
+    <h3><%= l 'git_setup' %> <i class="icon icon-help"></i></h3>
+    <div id="git_setup">
+      <a href="http://git-scm.com/download" target="_blank"><%= l 'download_and_install_git' %></a>
+<pre class="autoscroll">
+git config --global user.name "<%= User.current.login %>"
+git config --global user.email <%= User.current.mail %>
+</pre>
+    </div>

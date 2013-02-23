@@ -1,32 +1,32 @@
 <%# This is used to display basic git setup instructions, like on github... %>
-<% flash.now[:error] = "Repository does not exist. Create one using the instructions below." %>
+<% flash.now[:error] = l('error_git_repository_does_not_exist') %>
 <div class="box">
 
   <h2>Git Setup:</h2>
   <pre>
-    <a href="http://git-scm.com/download" target="_blank">Download and Install Git</a>
+    <a href="http://git-scm.com/download" target="_blank"><%= l 'download_and_install_git' %></a>
     git config --global user.name "<%= User.current.login %>"
     git config --global user.email <%= User.current.mail %>
   </pre>
 
-  <h2>Permission Setup:</h2>
+  <h2><%= l 'git_permission_setup' %>:</h2>
   <pre>
-    <%= link_to "Upload SSH Public Key", {:controller => 'gitolite_public_keys', :action => 'index'} %>
-    Add yourself as a project developer: <%= link_to @project.name + " Settings", {:controller => 'projects', :action => 'settings'} %> -&gt; Members Tab -&gt; New Member
+    <%= link_to l('upload_ssh_public_key'), {:controller => 'gitolite_public_keys', :action => 'index'} %>
+    <%= l 'add_yourself_as_developer' %>: <%= link_to @project.name + " #{l 'label_settings'}", {:controller => 'projects', :action => 'settings'} %> -&gt; <%= l 'label_member_plural' %>Tab -&gt; <%= l 'label_member_new' %>
   </pre>
 
-  <h2>Repository Setup:</h2>
+  <h2><%= l 'repository_setup' %>:</h2>
   <pre>
     mkdir <%= @repository.identifier %>
     cd <%= @repository.identifier %>
     git init
     git add .
-    git commit -m 'Initializing <%= @project %> repository'
+    git commit -m '<%= l 'initializing_repository', :project => @project %>'
     git remote add origin <%= @repository.gitolite_git_url %>
     git push origin master
   </pre>
 
-  <h2>Existing Git Repo?</h2>
+  <h2><%= l 'checkin_existing_git_repo' %></h2>
   <pre>
     cd existing_git_repo
     git remote add origin <%= @repository.gitolite_git_url %>
